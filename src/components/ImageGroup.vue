@@ -1,5 +1,5 @@
 <template>
-    <div class="group" :style="{ backgroundColor: groupColor }">
+    <div class="group">
         <h1>{{ groupName }}</h1>
         <div class="images">
             <slot></slot>
@@ -10,8 +10,7 @@
 <script>
 export default {
     props: {
-        groupName: String,
-        groupColor: String,
+        groupName: String
     },
 };
 </script>

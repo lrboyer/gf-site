@@ -1,9 +1,8 @@
 <template>
   <div class="main">
     <div class="list">
-      <ImageGroup v-for="imageGroup in imageData" :key="imageGroup.group" :groupName="imageGroup.group"
-        :groupColor="groupColor">
-        <img v-for="img in imageGroup.imgs" :key="img.name" :src="img.url" :alt="img.name" />
+      <ImageGroup v-for="imageGroup in imageData" :key="imageGroup.group" :groupName="imageGroup.group">
+        <img v-for="img in imageGroup.images" :key="img.name" :src="img.url" :alt="img.name" />
       </ImageGroup>
     </div>
   </div>
@@ -11,7 +10,7 @@
 
 <script>
 import ImageGroup from '../components/ImageGroup.vue'
-import imageData from '@/data/image-data.json';
+import axios from 'axios';
 
 export default {
   components: {
@@ -19,14 +18,21 @@ export default {
   },
   data() {
     return {
-      groupColor: 'beige', // Define your group color here
-      imageData: {
-        images: [],
-      },
+      imageData: [],
     };
   },
   created() {
-    this.imageData = imageData.data; // Assign the 'data' array to imageData
+    this.fetchImageData();
+  },
+  methods: {
+    async fetchImageData() {
+      try {
+        const response = await axios.get('https://pqlubejjk8.execute-api.us-east-1.amazonaws.com/dev/images');
+        this.imageData = JSON.parse(response.data.body);
+      } catch (error) {
+        console.error('Error fetching image data:', error);
+      }
+    },
   },
 };
 </script>
