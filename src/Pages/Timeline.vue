@@ -1,24 +1,30 @@
 <template>
   <div class="main">
     <div class="list">
-      <ImageGroup v-for="imageGroup in imageData" :key="imageGroup.group" :groupName="imageGroup.group">
-        <img v-for="img in imageGroup.images" :key="img.name" :src="img.url" :alt="img.name" />
-      </ImageGroup>
+      <ImageGroup v-for="imageGroup in imageData" :key="imageGroup.group" :groupName="imageGroup.group"
+        :imageList="imageGroup.images" @group-selected="filterImagesByGroup" />
     </div>
+    <GalleryModal v-if="showModal" :groupName="selectedGroup.group" :imageList="selectedGroupImages"
+      @close-modal="closeModal" />
   </div>
 </template>
 
 <script>
 import ImageGroup from '../components/ImageGroup.vue'
+import GalleryModal from '../components/GalleryModal.vue'
 import axios from 'axios';
 
 export default {
   components: {
     ImageGroup,
+    GalleryModal
   },
   data() {
     return {
       imageData: [],
+      showModal: false,
+      selectedGroup: null,
+      selectedGroupImages: [],
     };
   },
   created() {
@@ -32,6 +38,19 @@ export default {
       } catch (error) {
         console.error('Error fetching image data:', error);
       }
+    },
+    filterImagesByGroup(groupName) {
+      // Find the selected group data
+      this.selectedGroup = this.imageData.find(group => group.group === groupName);
+
+      // Update filtered images to show only images in the selected group
+      if (this.selectedGroup) {
+        this.selectedGroupImages = this.selectedGroup.images; // Store selected group images
+        this.showModal = true; // Open the modal
+      }
+    },
+    closeModal() {
+      this.showModal = false; // Close the modal
     },
   },
 };
@@ -63,10 +82,5 @@ div .main {
   background-color: rgba(255, 255, 255, 0.75);
   width: 75%;
   height: 100%;
-}
-
-img {
-  width: 100%;
-  height: auto;
 }
 </style>
