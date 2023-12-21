@@ -9,36 +9,57 @@ dynamodb = boto3.resource('dynamodb')
 s3_client = boto3.client('s3')
 dynamo_table = dynamodb.Table(table_name)
 
+table_groups = 'gf-site-groups'
+dynamo_table_groups = dynamodb.Table(table_groups)
 
-def get_unique_folders():
+
+def insert_group_name(groupName):
+    item = {
+        "groupName": groupName,
+        "order": 100
+    }
+    dynamo_table_groups.put_item(Item=item)
+
+
+def get_folders_from_dynamo():
+    dynamodb_response = dynamo_table_groups.scan(TableName=table_groups)
+    groups = dynamodb_response.get('Items', [])
+
+    return groups
+
+
+def get_unique_folders_from_s3():
     try:
-        folders_with_timestamp = []
+        folders = set()
+        response = s3_client.list_objects_v2(Bucket=bucket_name, Delimiter='/')
 
-        # Fetch the list of objects in the bucket
-        response = s3_client.list_objects_v2(Bucket=bucket_name)
-        objects = response.get('Contents', [])
+        for prefix in response.get('CommonPrefixes', []):
+            folder_name = prefix.get('Prefix').rstrip('/')
+            folders.add(folder_name)
 
-        for obj in objects:
-            folder_name = obj['Key'].split('/')[0]
-
-            # Check if the folder is already in the list
-            existing_folder = next(
-                (f for f in folders_with_timestamp if f['folder'] == folder_name), None)
-
-            # If folder doesn't exist in the list, add it
-            if not existing_folder:
-                timestamp = obj.get('LastModified').timestamp()
-                folders_with_timestamp.append(
-                    {'folder': folder_name, 'timestamp': timestamp})
-
-        # Sort the list of folders by timestamp in descending order (latest first)
-        folders_with_timestamp.sort(key=lambda x: x['timestamp'], reverse=True)
-
-        return [folder['folder'] for folder in folders_with_timestamp]
-
+        return list(folders)
     except Exception as e:
         print(f"Error getting folders: {e}")
         return None
+
+
+def getFolders():
+    s3Folders = get_unique_folders_from_s3()
+    dynamoFolders = get_folders_from_dynamo()
+
+    if len(s3Folders) != len(dynamoFolders):
+        for group in s3Folders:
+            if group not in [folder['groupName'] for folder in dynamoFolders]:
+                insert_group_name(group)
+                dynamoFolders.append({"groupName": group, "order": 100})
+
+    sorted_folders = sorted(
+        dynamoFolders, key=lambda x: x['order'], reverse=True)
+
+    # Extract the "groupName" values into a list
+    folders = [item['groupName'] for item in sorted_folders]
+
+    return folders
 
 
 def generate_presigned_url(bucket, key):
@@ -140,7 +161,7 @@ def lambda_handler(event, context):
         groupImages = getGroupImages(groupName)
         response = groupImages
     else:
-        groups = get_unique_folders()
+        groups = getFolders()
         response = groups
 
     return response
