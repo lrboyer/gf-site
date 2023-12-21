@@ -1,20 +1,37 @@
 <template>
     <div>
-        <form @submit.prevent="handleSubmit" class="login-form">
-            <h1>LL Relationship Timeline</h1>
-            <input v-model="formData" placeholder="Enter password" type="password" class="input-field">
-            <button type="submit" class="submit-button">Submit</button>
-        </form>
+        <div v-if="showGif" class="enter-gif">
+            <form @submit.prevent="handleSubmit" class="login-form">
+                <img src="https://media.giphy.com/media/FTGah7Mx3ss04PcasF/giphy.gif">
+                <h1>Do you want to see literally us?</h1>
+                <button @click="showForm" class="submit-button">Yes</button>
+            </form>
+        </div>
+        <div v-else="showGif">
+            <form @submit.prevent="handleSubmit" class="login-form">
+                <img src="https://media.giphy.com/media/UMon0fuimoAN9ueUNP/giphy.gif">
+                <h1>LL Relationship Timeline</h1>
+                <input v-model="formData" placeholder="Enter password" type="password" class="input-field">
+                <button type="submit" class="submit-button">Submit</button>
+            </form>
+        </div>
     </div>
 </template>
   
 <script setup>
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 let formData = '';
 const correctPassword = '12345';
+const showGif = ref(true);
+const noButton = ref(null);
 
 const router = useRouter();
+
+const showForm = () => {
+    showGif.value = false;
+};
 
 const handleSubmit = () => {
     if (formData === correctPassword) {
@@ -72,6 +89,25 @@ div {
 
 .submit-button:hover {
     background-color: #0056b3;
+}
+
+.enter-gif {
+    /* Styles for the GIF container */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Add other styles as needed */
+}
+
+.no-button {
+    /* Styles for the No button */
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.no-button:hover {
+    transform: scale(1.1);
+    /* Example transformation on hover */
 }
 </style>
   

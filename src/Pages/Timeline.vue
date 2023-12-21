@@ -1,5 +1,6 @@
 <template>
   <div class="main">
+    <Upload />
     <div class="list">
       <ImageGroup v-for="imageGroup in imageData" :key="imageGroup.group" :groupName="imageGroup.group"
         :imageList="imageGroup.images" @group-selected="filterImagesByGroup" />
@@ -12,15 +13,18 @@
 <script>
 import ImageGroup from '../components/ImageGroup.vue'
 import GalleryModal from '../components/GalleryModal.vue'
+import Upload from '../components/Upload.vue'
 import axios from 'axios';
 
 export default {
   components: {
     ImageGroup,
-    GalleryModal
+    GalleryModal,
+    Upload,
   },
   data() {
     return {
+      apiUrl: "https://jwxchy0pkl.execute-api.us-east-1.amazonaws.com",
       imageData: [],
       showModal: false,
       selectedGroup: null,
@@ -33,8 +37,8 @@ export default {
   methods: {
     async fetchImageData() {
       try {
-        const response = await axios.get('https://pqlubejjk8.execute-api.us-east-1.amazonaws.com/dev/images');
-        this.imageData = JSON.parse(response.data.body);
+        const response = await axios.get(`${this.apiUrl}/images`);
+        this.imageData = response.data;
       } catch (error) {
         console.error('Error fetching image data:', error);
       }
