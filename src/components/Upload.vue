@@ -2,8 +2,7 @@
     <div>
         <input v-model="groupName" placeholder="Enter group name" class="input-field">
         <button @click="openFileInput">Upload</button>
-        <input ref="fileInput" type="file" style="display: none" @change="handleFileChange" />
-
+        <input ref="fileInput" type="file" style="display: none" multiple accept="image/*" @change="handleFileChange" />
     </div>
 </template>
   
@@ -37,7 +36,6 @@ export default {
         async getPresignedUrl(fileName) {
             try {
                 const response = await axios.get(`${apiUrl}/upload?fileName=${encodeURIComponent(fileName)}&groupName=${encodeURIComponent(this.groupName)}`);
-                console.log(response.data)
                 let url = response.data.presignedUrl
 
                 return url
@@ -54,11 +52,8 @@ export default {
                         'Content-Type': 'image/*',
                     },
                 };
-                console.log(options)
 
                 await axios.put(presignedUrl, file, options);
-
-                console.log(`File "${file.name}" uploaded successfully.`);
             } catch (error) {
                 console.error('Error uploading file:', error);
                 throw new Error('Failed to upload file');

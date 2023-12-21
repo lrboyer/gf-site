@@ -1,6 +1,7 @@
 <template>
   <div class="main">
     <Upload />
+    <button @click="refreshImages">Refresh</button>
     <div class="list">
       <ImageGroup v-for="imageGroup in imageData" :key="imageGroup.group" :groupName="imageGroup.group"
         :imageList="imageGroup.images" @group-selected="filterImagesByGroup" />
@@ -25,6 +26,7 @@ export default {
   data() {
     return {
       apiUrl: "https://jwxchy0pkl.execute-api.us-east-1.amazonaws.com",
+      groups: [],
       imageData: [],
       showModal: false,
       selectedGroup: null,
@@ -32,13 +34,33 @@ export default {
     };
   },
   created() {
-    this.fetchImageData();
+    this.fetchGroups();
   },
   methods: {
-    async fetchImageData() {
+    async fetchGroups() {
       try {
         const response = await axios.get(`${this.apiUrl}/images`);
-        this.imageData = response.data;
+        this.groups = response.data;
+        console.log(response.data)
+        for (let i = 0; i < this.groups.length; i++) {
+          await this.fetchImageData(this.groups[i]);
+        }
+      } catch (error) {
+        console.error('Error fetching group data:', error);
+      }
+    },
+    async fetchImageData(group) {
+      try {
+        const response = await axios.get(`${this.apiUrl}/images/${group}`);
+
+        if (response.data) {
+          const imagesData = {
+            group: response.data.group,
+            images: response.data.images,
+          };
+
+          this.imageData.push(imagesData)
+        }
       } catch (error) {
         console.error('Error fetching image data:', error);
       }
@@ -55,6 +77,12 @@ export default {
     },
     closeModal() {
       this.showModal = false; // Close the modal
+    },
+    refreshImages() {
+      // Clear existing data and fetch again
+      this.imageData = [];
+      this.groups = []
+      this.fetchGroups();
     },
   },
 };
