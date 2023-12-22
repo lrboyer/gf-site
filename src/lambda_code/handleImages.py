@@ -56,7 +56,6 @@ def getFolders():
     sorted_folders = sorted(
         dynamoFolders, key=lambda x: x['order'], reverse=True)
 
-    # Extract the "groupName" values into a list
     folders = [item['groupName'] for item in sorted_folders]
 
     return folders
@@ -65,7 +64,7 @@ def getFolders():
 def generate_presigned_url(bucket, key):
     try:
         presigned_url = s3_client.generate_presigned_url(
-            'get_object', Params={'Bucket': bucket, 'Key': key}, ExpiresIn=600000)  # TTL of 7 days
+            'get_object', Params={'Bucket': bucket, 'Key': key}, ExpiresIn=43200)
         return presigned_url
     except Exception as e:
         print(f"Error generating presigned URL: {e}")
@@ -74,7 +73,7 @@ def generate_presigned_url(bucket, key):
 
 def write_to_dynamodb(file_name, presigned_url):
     current_time = int(time.time())
-    expire_ttl = current_time + 600000  # TTL of 7 days
+    expire_ttl = current_time + 43200  # TTL of 12 hours
 
     # Add TTL attribute to the item to be stored in DynamoDB
     item_to_dynamo = {
