@@ -8,7 +8,7 @@ const routes = [
         component: Home
     },
     {
-        path: '/timeline',
+        path: '/LB-X-LR-LITERALLY-US-TIMELINE',
         component: Timeline
     }
 ];

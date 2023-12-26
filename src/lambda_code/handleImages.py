@@ -13,10 +13,22 @@ table_groups = 'gf-site-groups'
 dynamo_table_groups = dynamodb.Table(table_groups)
 
 
-def insert_group_name(groupName):
+def get_next_order():
+    dynamodb_response = dynamo_table_groups.scan(TableName=table_groups)
+    groups = dynamodb_response.get('Items', [])
+    order_max = 0
+
+    for item in groups:
+        order = item.get('order', 0)
+        order_max = max(order, order_max)
+
+    return order_max + 1
+
+
+def insert_group_name(groupName, next_order):
     item = {
         "groupName": groupName,
-        "order": 100
+        "order": next_order
     }
     dynamo_table_groups.put_item(Item=item)
 
@@ -50,8 +62,9 @@ def getFolders():
     if len(s3Folders) != len(dynamoFolders):
         for group in s3Folders:
             if group not in [folder['groupName'] for folder in dynamoFolders]:
-                insert_group_name(group)
-                dynamoFolders.append({"groupName": group, "order": 100})
+                next_order = get_next_order()
+                insert_group_name(group, next_order)
+                dynamoFolders.append({"groupName": group, "order": next_order})
 
     sorted_folders = sorted(
         dynamoFolders, key=lambda x: x['order'], reverse=True)

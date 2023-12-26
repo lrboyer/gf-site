@@ -1,56 +1,68 @@
 <template>
-    <div>
-        <div v-if="showGif" class="enter-gif">
-            <form @submit.prevent="handleSubmit" class="login-form">
-                <img src="https://media.giphy.com/media/FTGah7Mx3ss04PcasF/giphy.gif">
-                <h1>Do you want to see literally us?</h1>
-                <button @click="showForm" class="submit-button">Yes</button>
-            </form>
-        </div>
-        <div v-else="showGif">
-            <form @submit.prevent="handleSubmit" class="login-form">
-                <img src="https://media.giphy.com/media/UMon0fuimoAN9ueUNP/giphy.gif">
-                <h1>LL Relationship Timeline</h1>
-                <input v-model="formData" placeholder="Enter password" type="password" class="input-field">
-                <button type="submit" class="submit-button">Submit</button>
-            </form>
+    <div class="page">
+        <Navbar />
+        <div class="body">
+            <div v-if="showGif" class="enter-gif">
+                <form class="login-form">
+                    <img src="https://media.giphy.com/media/FTGah7Mx3ss04PcasF/giphy.gif">
+                    <h1>Do you want to see literally us?</h1>
+                    <button @click="showForm" class="submit-button">Yes</button>
+                </form>
+            </div>
+            <div v-else>
+                <form @submit.prevent="handleSubmit" class="login-form">
+                    <img src="https://media.giphy.com/media/UMon0fuimoAN9ueUNP/giphy.gif">
+                    <h1>LB X LR Relationship Timeline</h1>
+                    <input v-model="formData" placeholder="Enter password" type="password" class="input-field">
+                    <button type="submit" class="submit-button">Submit</button>
+                </form>
+            </div>
         </div>
     </div>
 </template>
   
-<script setup>
+<script>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import Navbar from '../components/Navbar.vue';
 
-let formData = '';
-const correctPassword = '12345';
-const showGif = ref(true);
-const noButton = ref(null);
-
-const router = useRouter();
-
-const showForm = () => {
-    showGif.value = false;
-};
-
-const handleSubmit = () => {
-    if (formData === correctPassword) {
-        router.push('/timeline');
-    } else {
-        alert('Incorrect password. Please try again.');
-        formData = '';
-    }
+export default {
+    setup() {
+        const formData = ref('');
+        const showGif = ref(true);
+        const correctPassword = '12345';
+        const router = useRouter();
+        const showForm = () => {
+            showGif.value = false;
+        };
+        const handleSubmit = () => {
+            if (formData.value === correctPassword) {
+                router.push('/LB-X-LR-LITERALLY-US-TIMELINE');
+            }
+            else {
+                alert('Incorrect password. Please try again.');
+                formData.value = '';
+            }
+        };
+        return { formData, showGif, showForm, handleSubmit };
+    },
+    components: { Navbar }
 };
 </script>
+
   
 <style scoped>
-div {
+.page {
     background-image: url('../images/sanrio-background.jpg');
-    background-size: cover;
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
-    padding: 0;
+    background-size: repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.body {
+    min-height: 98vh;
     display: flex;
     flex-direction: column;
     justify-content: center;

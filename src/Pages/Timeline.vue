@@ -1,10 +1,13 @@
 <template>
   <div class="main">
-    <Upload />
-    <button @click="refreshImages">Refresh</button>
+    <Navbar />
+    <div class="upload">
+      <Upload />
+    </div>
+    <button class="submit-button" @click="refreshImages">Refresh Images</button>
     <div class="list">
-      <ImageGroup v-for="imageGroup in imageData" :key="imageGroup.group" :groupName="imageGroup.group"
-        :imageList="imageGroup.images" @group-selected="filterImagesByGroup" />
+      <ImageGroup v-for="(imageGroup, index) in imageData" :key="imageGroup.group" :groupName="imageGroup.group"
+        :imageList="imageGroup.images" :index="index" @group-selected="filterImagesByGroup" />
     </div>
     <GalleryModal v-if="showModal" :groupName="selectedGroup.group" :imageList="selectedGroupImages"
       @close-modal="closeModal" />
@@ -16,9 +19,11 @@ import ImageGroup from '../components/ImageGroup.vue'
 import GalleryModal from '../components/GalleryModal.vue'
 import Upload from '../components/Upload.vue'
 import axios from 'axios';
+import Navbar from '../components/Navbar.vue';
 
 export default {
   components: {
+    Navbar,
     ImageGroup,
     GalleryModal,
     Upload,
@@ -90,12 +95,8 @@ export default {
 
 <style scoped>
 div .main {
-  background-image: url('../images/sanrio-background.jpg');
-  background-size: cover;
-  width: 100%;
-  height: 100%;
-  min-width: 100vw;
-  min-height: 100vh;
+  background: url('../images/sanrio-background.jpg');
+  background-repeat: repeat;
   margin: 0;
   padding: 0;
   display: flex;
@@ -114,5 +115,25 @@ div .main {
   background-color: rgba(255, 255, 255, 0.75);
   width: 75%;
   height: 100%;
+}
+
+.upload {
+  margin-top: 75px;
+}
+
+.submit-button {
+  margin: 10px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
 }
 </style>
